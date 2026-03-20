@@ -35,8 +35,10 @@ int main()
 
     ScalarType cont_freq = 10; // set in line with the transmission risk below
 
-    ScalarType nb_total_t0 = 10000;
-    ScalarType nb_inf_t0   = 100;
+    ScalarType nb_sh  = 800000;
+    ScalarType nb_sl  = 300000;
+    ScalarType nb_car = 100000;
+    ScalarType nb_rec = 99000;
 
     mio::omeng::Model<ScalarType> model(1);
 
@@ -60,16 +62,15 @@ int main()
     contact_matrix[0] = mio::ContactMatrix<ScalarType>(Eigen::MatrixX<ScalarType>::Constant(1, 1, cont_freq));
     // contact_matrix[0].add_damping(0.7, mio::SimulationTime<ScalarType>(30.));
 
-    model.populations.set_total(nb_total_t0);
-    model.populations[{mio::AgeGroup(0), mio::omeng::InfectionState::Incoming}]        = 0;
-    model.populations[{mio::AgeGroup(0), mio::omeng::InfectionState::SusceptibleHigh}] = 0;
-    model.populations[{mio::AgeGroup(0), mio::omeng::InfectionState::Carrier}]         = 0;
-    model.populations[{mio::AgeGroup(0), mio::omeng::InfectionState::Infected}]        = nb_inf_t0;
-    model.populations[{mio::AgeGroup(0), mio::omeng::InfectionState::Recovered}]       = 0;
-    model.populations[{mio::AgeGroup(0), mio::omeng::InfectionState::Dead}]            = 0;
+    ScalarType nb_total_t0                                                      = nb_sh + nb_sl + nb_car + nb_rec;
+    model.populations[{mio::AgeGroup(0), mio::omeng::InfectionState::Incoming}] = 0;
+    model.populations[{mio::AgeGroup(0), mio::omeng::InfectionState::SusceptibleHigh}] = nb_sh;
+    model.populations[{mio::AgeGroup(0), mio::omeng::InfectionState::SusceptibleLow}]  = nb_sl;
+    model.populations[{mio::AgeGroup(0), mio::omeng::InfectionState::Carrier}]         = nb_car;
+    model.populations[{mio::AgeGroup(0), mio::omeng::InfectionState::Infected}]        = 0;
+    model.populations[{mio::AgeGroup(0), mio::omeng::InfectionState::Recovered}]       = nb_rec;
     model.populations[{mio::AgeGroup(0), mio::omeng::InfectionState::DeadNatural}]     = 0;
-    model.populations.set_difference_from_total({mio::AgeGroup(0), mio::omeng::InfectionState::SusceptibleLow},
-                                                nb_total_t0 - nb_inf_t0);
+    model.populations.set_difference_from_total({mio::AgeGroup(0), mio::omeng::InfectionState::Dead}, nb_total_t0);
 
     model.check_constraints();
 

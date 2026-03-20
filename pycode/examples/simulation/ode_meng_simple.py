@@ -39,8 +39,10 @@ def run_ode_meng_simulation():
     tmax = 10.
     dt = 0.1
 
-    nb_total_t0 = 10000.
-    nb_inf_t0 = 100.
+    nb_sh = 800000
+    nb_sl = 300000
+    nb_car = 100000
+    nb_rec = 99000
     cont_freq = 10.
 
     # One age group
@@ -70,14 +72,14 @@ def run_ode_meng_simulation():
 
     # --- Initial conditions ---
     model.populations[A0, State.Incoming] = 0.
-    model.populations[A0, State.SusceptibleHigh] = 0.
-    model.populations[A0, State.Carrier] = 0.
-    model.populations[A0, State.Infected] = nb_inf_t0
-    model.populations[A0, State.Recovered] = 0.
-    model.populations[A0, State.Dead] = 0.
+    model.populations[A0, State.SusceptibleHigh] = nb_sh
+    model.populations[A0, State.SusceptibleHigh] = nb_sl
+    model.populations[A0, State.Carrier] = nb_car
+    model.populations[A0, State.Infected] = 0.
+    model.populations[A0, State.Recovered] = nb_rec
     model.populations[A0, State.DeadNatural] = 0.
     model.populations.set_difference_from_total(
-        (A0, State.SusceptibleLow), nb_total_t0 - nb_inf_t0)
+        (A0, State.Dead), nb_total_t0)
 
     model.check_constraints()
 
